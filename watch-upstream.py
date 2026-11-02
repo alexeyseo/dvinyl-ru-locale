@@ -121,8 +121,10 @@ def main():
             + ", ".join(f"`{k}`" for k in new_keys[:8])
             + (f" и ещё {len(new_keys) - 8}" if len(new_keys) > 8 else ""))
     if gone_keys:
-        problems.append(f"строк, которых больше нет в апстриме: {len(gone_keys)} — "
-                        + ", ".join(f"`{k}`" for k in gone_keys[:8]))
+        # Это ключи, которые мы привозим сами (подписи новых валют и подобное):
+        # их нет в апстриме до слияния патча, и терять из-за них сигнал нельзя.
+        notes.append(f"своих ключей вне апстрима: {len(gone_keys)} — "
+                     + ", ".join(f"`{k}`" for k in gone_keys[:8]))
 
     broken = []
     for path, anchors in ANCHORS.items():

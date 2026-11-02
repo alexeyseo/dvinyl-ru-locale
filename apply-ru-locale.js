@@ -179,5 +179,43 @@ edit(
   'albums-filters.ejs: пункт списка'
 );
 
+// 12. Рубль как валюта настроек. Три точки в коде плюс подпись в английской локали:
+//     сама подпись приезжает в апстрим только вместе с патчем, а до слияния английский
+//     интерфейс показал бы сырой ключ `settings.currency_rub`.
+edit(
+  at('models/User.ts'),
+  "        enum: ['EUR', 'USD', 'GBP'],",
+  "        enum: ['EUR', 'USD', 'GBP', 'RUB'],",
+  'User.ts: валюта RUB'
+);
+edit(
+  at('routes/settingsRoutes.ts'),
+  "    if (!['EUR', 'USD', 'GBP'].includes(currency)) {",
+  "    if (!['EUR', 'USD', 'GBP', 'RUB'].includes(currency)) {",
+  'settingsRoutes.ts: белый список валют'
+);
+editRe(
+  at('views/settings.ejs'),
+  '<option value="GBP"[\\s\\S]*?currency_gbp\'\\) %>\\s*</option>',
+  (hit) => hit + '\n\n                                <option value="RUB" class="bg-white dark:bg-[#1a1a1a]" ' +
+    "<%=user.currency==='RUB' ? 'selected' : '' %>>\n" +
+    "                                    <%= t('settings.currency_rub') %>\n                                </option>",
+  'settings.ejs: пункт рубля'
+);
+
+// Подпись валюты в английской локали: без неё ключ не найдётся в en.json.
+{
+  const enPath = at('locales/en.json');
+  const en = JSON.parse(fs.readFileSync(enPath, 'utf8'));
+  if (!en.settings) en.settings = {};
+  if (!en.settings.currency_rub) {
+    en.settings.currency_rub = 'Russian Ruble (₽)';
+    fs.writeFileSync(enPath, JSON.stringify(en, null, 2) + '\n');
+    console.log('[ru] en.json: добавлена подпись рубля');
+  } else {
+    console.log('[ru] en.json: подпись рубля уже есть');
+  }
+}
+
 const ru = JSON.parse(fs.readFileSync(at('locales/ru.json'), 'utf8'));
 console.log(`[ru] локаль на месте, ключей верхнего уровня: ${Object.keys(ru).length}`);

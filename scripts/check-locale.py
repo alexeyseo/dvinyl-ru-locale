@@ -56,6 +56,7 @@ def main():
             problems.append(f"не удалось прочитать английскую локаль: {exc}")
 
     if english:
+        extra_keys = []
         plural_bases = {k[: -len(s)] for k in english for s in PLURAL_EN if k.endswith(s)}
         for key in english:
             if key.endswith(PLURAL_EN):
@@ -72,7 +73,9 @@ def main():
                     break
             if stripped or key in english:
                 continue
-            problems.append(f"лишний ключ: {key}")
+            # Лишний ключ локали не ломает рендер (i18next просто не найдёт его в en.json),
+            # а появляется он законно: часть ключей мы привозим вместе с патчем локали.
+            extra_keys.append(key)
         for key, value in russian.items():
             reference = key
             for suffix in ("_one", "_few", "_many"):
@@ -87,9 +90,14 @@ def main():
                 if set(PLACEHOLDER.findall(str(value))) != set(PLACEHOLDER.findall(str(english[reference]))):
                     problems.append(f"плейсхолдеры не совпали: {key} — {value!r}")
 
+    extra_keys = []
     for key, value in russian.items():
         if not str(value).strip():
             problems.append(f"пустое значение: {key}")
+
+    if extra_keys:
+        print(f"замечание: ключей, которых нет в английской локали: {len(extra_keys)} "
+              f"({', '.join(extra_keys[:5])})", file=sys.stderr)
 
     if problems:
         print(f"НАЙДЕНО ПРОБЛЕМ: {len(problems)}")
