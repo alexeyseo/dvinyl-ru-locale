@@ -148,5 +148,36 @@ edit(
   'detail.ejs: валюта по умолчанию'
 );
 
+// 11. Десятилетия: в шаблоне к году приклеивалось английское «s», поэтому любой язык видел
+//     «2020s». Русский пишет «2020-е», немецкий «2020er», французский и испанский ставят слово
+//     перед годом. Заодно подпись при нескольких выбранных десятилетиях больше не считает
+//     их числом, а показывает диапазон.
+edit(
+  at('views/partials/albums-filters.ejs'),
+  '<button onclick=\"toggleDecadeMenu(event)\" id=\"decadeSelectorBtn\"',
+  `<% // Десятилетия пишутся по-разному: в русском «2020-е», в немецком «2020er»,
+   // во французском и испанском это отдельное слово перед годом. Твёрдое «s» в конце
+   // годится только для английского.
+   const decadeText = (year) => {
+       switch (currentLng) {
+           case 'ru': return year + '-е';
+           case 'de': return year + 'er';
+           case 'fr': return 'années ' + year;
+           case 'es': return 'años ' + year;
+           case 'it': return 'anni ' + year;
+           default: return year + 's';
+       }
+   };
+%>
+<button onclick="toggleDecadeMenu(event)" id="decadeSelectorBtn"`,
+  'albums-filters.ejs: подписи десятилетий'
+);
+edit(
+  at('views/partials/albums-filters.ejs'),
+  "<span class=\"group-hover:translate-x-0.5 transition-transform\"><%= y %>s</span>",
+  '<span class="group-hover:translate-x-0.5 transition-transform"><%= decadeText(y) %></span>',
+  'albums-filters.ejs: пункт списка'
+);
+
 const ru = JSON.parse(fs.readFileSync(at('locales/ru.json'), 'utf8'));
 console.log(`[ru] локаль на месте, ключей верхнего уровня: ${Object.keys(ru).length}`);
