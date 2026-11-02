@@ -1,0 +1,48 @@
+name: release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Тег, для которого собрать релиз
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Вытащить заметки из CHANGELOG
+        env:
+          TAG: ${{ github.event.inputs.tag || github.ref_name }}
+        run: |
+          python3 - <<'PY' > notes.md
+          import os, re, pathlib
+          tag = os.environ["TAG"]
+          version = tag.lstrip("v")
+          text = pathlib.Path("CHANGELOG.md").read_text(encoding="utf-8")
+          # Секция версии — от «## <version>» до следующего «## » или конца файла
+          match = re.search(rf"^## {re.escape(version)}.*?(?=^## |\Z)", text, re.S | re.M)
+          if not match:
+              raise SystemExit(f"в CHANGELOG.md нет секции для {version}")
+          body = match.group(0)
+          body = "\n".join(body.splitlines()[1:]).strip()
+          print(body or f"Выпуск {tag}.")
+          PY
+
+      - name: Создать или обновить релиз
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.event.inputs.tag || github.ref_name }}
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release edit "$TAG" --title "$TAG" --notes-file notes.md
+          else
+            gh release create "$TAG" --title "$TAG" --notes-file notes.md --verify-tag
+          fi
