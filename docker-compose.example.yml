@@ -1,0 +1,29 @@
+# Пример: DVinyl с русской локалью.
+# Скопируйте этот файл рядом со своей установкой и замените только app-сервис,
+# либо перенесите в свой compose две строки: build и image.
+services:
+  app:
+    build: ./ru-locale-package
+    image: dvinyl:ru
+    container_name: dvinyl-app
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "127.0.0.1:3099:3099"
+    volumes:
+      - ./data/uploads:/app/public/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mongo:7
+    container_name: dvinyl-db
+    restart: unless-stopped
+    volumes:
+      - ./data/db:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
