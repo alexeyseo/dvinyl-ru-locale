@@ -26,7 +26,7 @@ jobs:
             const key = k + forms[idx];
             return String(ru.lists[key] ?? "").replace("{{count}}", n);
           };
-          const cases = [[1, "1 трек"], [3, "3 трека"], [22, "22 треков"]];
+          const cases = [[1, "1 трек"], [3, "3 трека"], [22, "22 трека"], [25, "25 треков"]];
           for (const [n, want] of cases) {
             const got = t("tracks_count", n);
             if (got !== want) { console.error(`плюрализация ${n}: получили «${got}», ждали «${want}»`); process.exit(1); }
