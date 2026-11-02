@@ -1,0 +1,50 @@
+name: Правка перевода
+description: Формулировка в русском интерфейсе звучит не так или строка осталась английской
+title: 'Перевод: '
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Чем точнее описание, тем быстрее правка. Если знаете ключ из `locales/ru.json` —
+        укажите, это снимает поиск.
+
+  - type: input
+    id: place
+    attributes:
+      label: Где видно
+      description: 'Экран и то, что рядом: настройки, карточка записи, кнопка под обложкой'
+      placeholder: 'Настройки → Язык'
+    validations:
+      required: true
+
+  - type: textarea
+    id: current
+    attributes:
+      label: Как сейчас
+      placeholder: 'Импортировать строки: 5'
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Как должно быть
+      placeholder: 'Импортировать строк: 5'
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: Почему так лучше
+      description: 'Если дело в термине — скажите, чем он плох'
+    validations:
+      required: false
+
+  - type: input
+    id: key
+    attributes:
+      label: Ключ в ru.json
+      description: 'Необязательно. Например admin.csv_import.btn_import_count'
+    validations:
+      required: false

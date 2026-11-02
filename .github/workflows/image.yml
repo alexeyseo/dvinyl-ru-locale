@@ -1,0 +1,45 @@
+name: image
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Определить базовую версию DVinyl из Dockerfile
+        id: upstream
+        run: |
+          base=$(awk -F= '/^ARG UPSTREAM=/ {print $2; exit}' Dockerfile)
+          echo "value=${base#*:}" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Собрать и опубликовать
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          build-args: |
+            UPSTREAM=ghcr.io/kyonew/dvinyl:${{ steps.upstream.outputs.value }}
+          tags: |
+            ghcr.io/${{ github.repository }}:${{ github.ref_name }}
+            ghcr.io/${{ github.repository }}:latest
+          labels: |
+            org.opencontainers.image.title=DVinyl с русской локалью
+            org.opencontainers.image.description=Русский язык интерфейса DVinyl
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.version=${{ github.ref_name }}
