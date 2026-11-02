@@ -122,5 +122,31 @@ edit(
   'settingsMiddleware.ts: язык профиля'
 );
 
+// 9. Формат денег: обе оценки собирали формат из жёсткой пары fr-FR/en-US, поэтому любой
+//    язык, кроме французского, показывал цены по-американски. Локаль берём из языка интерфейса —
+//    то же отображение, что у дат.
+edit(
+  at('core/views/detail.ejs'),
+  "const currentLocale = '<%= currentLng === \"fr\" ? \"fr-FR\" : \"en-US\" %>';",
+  "const currentLocale = '<%= dateLocaleFor(currentLng) %>';",
+  'detail.ejs: формат денег'
+);
+edit(
+  at('views/collection.ejs'),
+  "const currentLocale = '<%= currentLng === \"fr\" ? \"fr-FR\" : \"en-US\" %>';",
+  "const currentLocale = '<%= dateLocaleFor(currentLng) %>';",
+  'collection.ejs: формат денег'
+);
+
+// 10. Код валюты приходит из ответа Discogs. Когда его нет, Intl бросает
+//     «Currency code is required with currency style», и вместо цены видна ошибка —
+//     поэтому подставляем валюту из настроек пользователя.
+edit(
+  at('core/views/detail.ejs'),
+  '                const currency = data.price.currency;',
+  "                const currency = data.price.currency || '<%= user.currency || \"USD\" %>';",
+  'detail.ejs: валюта по умолчанию'
+);
+
 const ru = JSON.parse(fs.readFileSync(at('locales/ru.json'), 'utf8'));
 console.log(`[ru] локаль на месте, ключей верхнего уровня: ${Object.keys(ru).length}`);
