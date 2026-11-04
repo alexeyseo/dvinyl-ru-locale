@@ -1,29 +1,29 @@
-# Как помочь с переводом
+# Helping with the translation
 
-Правки формулировок, терминов и новых строк — через pull request. Достаточно одного файла:
-`locales/ru.json`.
+Wording, terms and new strings go through a pull request. One file is enough: `locales/ru.json`.
 
-## Что сделать
+**Русская версия:** [CONTRIBUTING.ru.md](CONTRIBUTING.ru.md)
 
-1. Форкнуть репозиторий и создать ветку.
-2. Поправить нужные значения в `locales/ru.json`. Ключи не менять, плейсхолдеры `{{…}}`
-   сохранять дословно.
-3. Прогнать проверки — без них pull request не пройдёт:
+## What to do
+
+1. Fork the repository and create a branch.
+2. Edit the values you need in `locales/ru.json`. Do not change the keys, and keep the `{{…}}`
+   placeholders exactly as they are.
+3. Run the checks — a pull request without them will not pass:
    ```bash
    python3 scripts/check-locale.py
    node .github/scripts/pluralization-check.js
    ```
-4. Открыть pull request: что было, что стало и почему. Если правите несколько мест —
-   списком.
+4. Open the pull request: what it was, what it became, and why. Several places at once — as a list.
 
-## Стиль
+## Style
 
-Информационный: глагол первым, без «пожалуйста» и «ваше», без канцелярита. Опасное действие
-говорит, что именно пропадёт: «Удалить список «{{name}}»? Записи из него останутся в коллекции».
+Informational: the verb first, no “please” and no “your”, no officialese. A dangerous action says what
+exactly will be lost: “Delete the list “{{name}}”? Its records stay in the collection”.
 
-## Термины
+## Terms
 
-Держим единообразие, иначе в интерфейсе будут «пластинки» и «записи» вперемешку.
+One word per entity, or the interface ends up mixing “plates” and “records”.
 
 - item → запись
 - release → издание
@@ -37,15 +37,15 @@
 - publisher → издатель
 - location → место
 
-Названия сервисов не переводим: Discogs, TMDB, IGDB, ScreenScraper, Rebrickable,
-BoardGameGeek, GoodReads, Libib, Hardcover, Open Library, Musik-Sammler.
+Service names are not translated: Discogs, TMDB, IGDB, ScreenScraper, Rebrickable, BoardGameGeek,
+GoodReads, Libib, Hardcover, Open Library, Musik-Sammler.
 
-## Множественное число
+## Plurals
 
-В английском две формы, в русском три: `_one`, `_few`, `_many`. Если правите такую строку,
-правьте все три. Пример: `{{count}} трек` / `{{count}} трека` / `{{count}} треков`.
+English has two forms, Russian has three: `_one`, `_few`, `_many`. When you edit such a string, edit all
+three. Example: `{{count}} трек` / `{{count}} трека` / `{{count}} треков`.
 
-## Новые строки апстрима
+## New strings from upstream
 
-Если в DVinyl появились новые надписи, они показываются по-английски — i18next берёт `en.json`
-как запасной язык. Закрыть их можно тем же способом: дописать ключи в `locales/ru.json`.
+When DVinyl gains new labels they show up in English — i18next uses `en.json` as the fallback language.
+They are closed the same way: add the keys to `locales/ru.json`.
