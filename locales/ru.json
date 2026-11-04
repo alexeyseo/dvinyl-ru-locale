@@ -973,7 +973,7 @@
     "barcode_locked": "Заблокировать штрихкод",
     "sleeve_condition_label": "Состояние конверта",
     "sleeve_condition_placeholder": "Выберите состояние конверта…",
-    "sleeve_condition_generic": "Стандартный конверт",
+    "sleeve_condition_generic": "Generic Sleeve",
     "add_cover": "Добавить обложку",
     "manual_title": "Добавить альбом вручную",
     "manual_mode_hint": "Ручной ввод, данных Discogs нет. Оценку стоимости посчитать не получится.",
