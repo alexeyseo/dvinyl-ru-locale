@@ -1,21 +1,17 @@
-# Russian for DVinyl — Русский язык для DVinyl
+# Russian for DVinyl
 
 The interface locale for [DVinyl](https://github.com/Kyonew/DVinyl), brought up to 4.0.0.
-Локаль интерфейса для [DVinyl](https://github.com/Kyonew/DVinyl), обновлённая под 4.0.0.
 
-Russian below the English, section by section. / Русский идёт под английским, раздел за разделом.
+**Русская версия:** [README.ru.md](README.ru.md)
 
-**Status, 4 November 2026 / Состояние на 4 ноября 2026.** Upstream does not ship Russian yet: neither
-`main` nor `release/4.0.0` has `locales/ru.json`, and both the locale and its registration are open
-pull requests (#220 and #221). Until they merge, this package is the only way to get the Russian
+**Status, 4 November 2026.** Upstream does not ship Russian yet: neither `main` nor
+`release/4.0.0` has `locales/ru.json`, and both the locale and its registration are open pull
+requests (#220 and #221). Until they merge, this package is the only way to get the Russian
 interface — including 4.0.0, which has no official image at all.
-Апстрим русского ещё не поставляет: ни в `main`, ни в `release/4.0.0` нет `locales/ru.json`, локаль
-и её регистрация лежат открытыми PR (#220 и #221). Пока они не слиты, этот пакет — единственный
-способ получить русский интерфейс, включая 4.0.0, у которой официального образа нет вовсе.
 
-## Install / Установка
+## Install
 
-**From source, the way 4.0.0 ships today / Из исходников, как сейчас выходит 4.0.0**
+**From source — the way 4.0.0 ships today**
 
 ```bash
 git clone https://github.com/Kyonew/DVinyl.git
@@ -26,10 +22,8 @@ npm start
 
 The script copies the locale and applies the nineteen registration edits; a second run prints
 “already applied” and changes nothing.
-Скрипт копирует локаль и накладывает девятнадцать правок; повторный запуск печатает «уже
-применено» и ничего не меняет.
 
-**An image built from source / Образ, собранный из исходников**
+**An image built from the branch**
 
 ```bash
 docker build -f Dockerfile.source -t dvinyl:ru .
@@ -37,10 +31,8 @@ docker build -f Dockerfile.source -t dvinyl:ru .
 
 `Dockerfile.source` clones the DVinyl branch named in its `DV_REF` argument (currently
 `release/4.0.0`) and patches it — there is no official 4.0.0 image yet.
-`Dockerfile.source` клонирует ветку из аргумента `DV_REF` (сейчас `release/4.0.0`) и накладывает
-патч: официального образа 4.0.0 пока нет.
 
-**On top of an official image / Поверх официального образа**
+**On top of an official image**
 
 ```bash
 docker build -t dvinyl:ru .
@@ -48,10 +40,8 @@ docker build -t dvinyl:ru .
 
 That file layers the locale onto `ghcr.io/kyonew/dvinyl:latest`, so it fits the releases that do
 have an image. Override with `--build-arg UPSTREAM=ghcr.io/kyonew/dvinyl:<tag>`.
-Этот файл кладёт локаль поверх `ghcr.io/kyonew/dvinyl:latest`, то есть подходит для уже
-выпущенных версий. Другая версия — `--build-arg UPSTREAM=ghcr.io/kyonew/dvinyl:<тег>`.
 
-**A published image / Готовый образ**
+**A published image**
 
 ```yaml
 services:
@@ -60,104 +50,78 @@ services:
 ```
 
 Tags live on the repository's Packages page; `latest` points at the newest release.
-Теги — на странице Packages репозитория; `latest` указывает на последний выпуск.
 
-**Through an agent / Через агента**
+**Through an agent**
 
 Hand the agent this repository and the task “install Russian into DVinyl following AGENTS.md”.
 `AGENTS.md` holds the steps, the checks, and what to do when upstream has moved.
-Отдайте агенту этот репозиторий и задачу «поставь русский язык в DVinyl по AGENTS.md»: в файле
-шаги, проверки и что делать, если апстрим изменился.
 
-## After installing / После установки
+## After installing
 
 Settings → Language → Русский.
-Настройки → Язык → Русский.
 
 `/login?lng=ru` answers in Russian without signing in, which is the quickest check.
-`/login?lng=ru` отдаёт русскую страницу без входа — это самая быстрая проверка.
 
-## What the patch touches / Что правит патч
+## What the patch touches
 
 Seven registration points, then the language fixes the package carries.
-Семь точек регистрации, затем языковые правки, которые везёт пакет.
 
-| File / Файл | What it does / Что делает |
+| File | What it does |
 |---|---|
-| `locales/ru.json` | the locale itself — a new file / сама локаль, новый файл |
+| `locales/ru.json` | the locale itself — a new file |
 | `config/constants.ts` | `SUPPORTED_LANGUAGES`, `LANGUAGE_NAMES`, `DATE_LOCALES`, `decadeText`, `SUPPORTED_CURRENCIES` |
 | `app.ts` | i18next resources; `app.locals.decadeText` next to `dateLocaleFor` |
-| `models/User.ts` | the `language` enum, without which the database refuses the preference / enum языка |
-| `views/settings.ejs` | the settings dropdown, which keeps its own copy of the list / свой список языков |
-| `views/setup.ejs` | the setup wizard's label and dropdown, also hand-written / тоже свой список |
-| `views/collection.ejs`, `core/views/detail.ejs` | money formatted by the interface language, and a currency fallback / деньги по языку интерфейса |
-| `views/partials/albums-filters.ejs`, `views/partials/active-filter-pills.ejs` | decades written the way the language writes them / десятилетия по правилам языка |
-| `plugins/music/partials/tracklist-view.ejs` | the duration header through a locale key / заголовок длительности через ключ |
+| `models/User.ts` | the `language` enum, without which the database refuses the preference |
+| `views/settings.ejs` | the settings dropdown, which keeps its own copy of the list |
+| `views/setup.ejs` | the setup wizard's label and dropdown, also hand-written |
+| `views/collection.ejs`, `core/views/detail.ejs` | money formatted by the interface language, and a currency fallback |
+| `views/partials/albums-filters.ejs`, `views/partials/active-filter-pills.ejs` | decades written the way the language writes them |
+| `plugins/music/partials/tracklist-view.ejs` | the duration header through a locale key |
 
 `apply-ru-locale.js` performs each replacement with an “exactly one match” check. When the author
 rewrites a line, the build stops with a message naming the edit instead of shipping an interface
 without Russian.
-`apply-ru-locale.js` делает каждую замену с проверкой «ровно одно вхождение». Если автор переписал
-строку, сборка остановится с сообщением, в котором названа правка, — вместо интерфейса без языка.
 
-## When Russian lands upstream / Когда русский появится в апстриме
+## When Russian lands upstream
 
-**The code patch stops being ours.** All nineteen registration edits become part of DVinyl itself, and
-this repository is left with one file: `locales/ru.json`. From the release that ships them, installing
-Russian is just updating the image.
-**Патч кода перестаёт быть нашим.** Все девятнадцать правок регистрации становятся частью DVinyl, и в
-этом репозитории остаётся один файл — `locales/ru.json`. С того релиза установка русского сводится к
-обновлению образа.
+**The code patch stops being ours.** All nineteen registration edits become part of DVinyl itself,
+and this repository is left with one file: `locales/ru.json`. From the release that ships them,
+installing Russian is just updating the image.
 
-What this package is for then / Зачем пакет нужен после этого:
+What this package is for then:
 
-- **Older versions that will never receive it.** 3.3.0 and below stay English forever; this package is
-  the only way to give them Russian.
-  **Старые версии, которые его уже не получат.** 3.3.0 и ниже останутся английскими навсегда — только
-  этот пакет даёт им русский.
-- **Staging a translation ahead of a release.** A wording fix can be built and tried here before an
-  upstream release exists.
-  **Обкатка перевода до релиза.** Правку формулировки можно собрать и потрогать здесь, пока релиза
-  апстрима ещё нет.
-- **Nothing else.** No forks of app files, no second source of truth: wording changes go upstream by
-  pull request, and this repository only rebuilds the locale for the older track.
-  **И больше ничего.** Никаких копий файлов приложения и второго источника правды: правки формулировок
-  уходят в апстрим пул-реквестом, а этот репозиторий только пересобирает локаль для старой ветки.
+- **Older versions that will never receive it.** 3.3.0 and below stay English forever; this
+  package is the only way to give them Russian.
+- **Staging a translation ahead of a release.** A wording fix can be built and tried here before
+  an upstream release exists.
+- **Nothing else.** No forks of app files, no second source of truth: wording changes go upstream
+  by pull request, and this repository only rebuilds the locale for the older track.
 
-How to tell whether the current release already has it / Как проверить, есть ли уже русский в релизе:
+How to tell whether a release already has it:
 
 ```bash
 curl -sf -o /dev/null -w '%{http_code}\n' \
   https://raw.githubusercontent.com/Kyonew/DVinyl/<tag-or-branch>/locales/ru.json
-# 404 — русского нет, нужен этот пакет
-# 200 — русский внутри, пакет не нужен
+# 404 — no Russian, this package is needed
+# 200 — Russian is inside, the package is not
 ```
 
-`watch-upstream.py` reports the same thing on its own: the line «upstream has its own `locales/ru.json`
-now» means the package can retire.
-То же самое сообщает `watch-upstream.py`: строка «upstream has its own `locales/ru.json` now» означает,
-что пакет можно снимать с сопровождения.
+`watch-upstream.py` reports the same thing on its own: the line «upstream has its own
+`locales/ru.json` now» means the package can retire.
 
-## Updating DVinyl / Обновления DVinyl
+## Updating DVinyl
 
 - `locales/ru.json` is a separate file: a version bump never touches it.
-  `locales/ru.json` — отдельный файл, обновления версии его не затрагивают.
 - The registration anchors live in three code files and four templates. After an update, rebuild:
   if the lines are still there the edits reapply themselves; if the author changed them, the build
   stops on “expected exactly one match” and the edit has to be ported.
-  Точки регистрации опираются на строки в трёх файлах кода и четырёх шаблонах. После обновления
-  пересоберите образ: строки на месте — правки применятся сами; автор их изменил — сборка
-  остановится на «ожидалась ровно одна замена», и правку надо переложить.
 - Strings the translation does not have fall back to English: i18next uses `en.json` as the
   fallback language.
-  Строки, которых нет в переводе, показываются по-английски: i18next берёт `en.json` как запасной.
 
 The locale is taken from `en.json` of `release/4.0.0`: 2376 positions, no gaps, and Russian plural
 forms where English has two.
-Локаль снята с `en.json` ветки `release/4.0.0`: 2376 позиций, расхождений нет, у плюральных строк
-русские формы там, где в английском их две.
 
-## Checks / Проверки
+## Checks
 
 ```bash
 python3 scripts/check-locale.py          # key parity and placeholders against upstream en.json
@@ -168,17 +132,12 @@ python3 scripts/build-review-page.py     # one HTML page: key, English, Russian,
 
 `watch-upstream.py` stays silent when everything is fine. CI runs both checks and the Russian
 plural forms on every pull request.
-`watch-upstream.py` молчит, когда всё в порядке. CI гоняет обе проверки и русскую плюрализацию
-на каждый pull request.
 
-## Translating / Перевод
+## Translating
 
 Edits to wording, terms and new strings go through a pull request; the order, the style and the
 glossary are in [CONTRIBUTING.md](CONTRIBUTING.md). If describing it in an issue is easier than a
 pull request, use the “Правка перевода” template.
-Правки формулировок, терминов и новых строк — через pull request. Порядок, стиль и словарь
-терминов — в [CONTRIBUTING.md](CONTRIBUTING.md). Если проще описать словами, откройте issue по
-шаблону «Правка перевода».
 
 Two rules worth knowing before editing:
 
@@ -189,14 +148,7 @@ Two rules worth knowing before editing:
 - **One noun per entity**: item → «запись», collection → «коллекция», location → «место»,
   copy → «экземпляр», release → «издание». A synonym in a label is a defect, not a style.
 
-- **Термины правил карточных игр остаются в оригинале** (`Planeswalker`, `Tamer`, `Digi-Egg`,
-  `Unit`, `Near Mint (NM)`), подписи полей — по-русски.
-- **Одна сущность — одно слово**: item → «запись», collection → «коллекция», location → «место»,
-  copy → «экземпляр», release → «издание». Синоним в подписи — дефект, а не стиль.
-
-## License / Лицензия
+## License
 
 The scripts are MIT. `locales/ru.json` is a derivative of the upstream `en.json`, and DVinyl ships
 under ISC, so the same terms apply.
-Скрипты — MIT. `locales/ru.json` — производная работа от апстримного `en.json`, DVinyl
-распространяется по ISC, условия те же.

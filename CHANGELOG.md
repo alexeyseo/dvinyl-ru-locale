@@ -1,30 +1,8 @@
-# История версий / Changelog
+# Changelog
 
-Каждая запись дана дважды: по-русски и по-английски. / Every entry is given twice: in Russian and in English.
+Русская версия: [CHANGELOG.ru.md](CHANGELOG.ru.md)
 
-## 2.0.0 — 4 ноября 2026 / 4 November 2026
-
-**RU**
-
-- Пакет переведён на DVinyl 4.0.0: локаль — 2376 позиций, паритет с `en.json` ветки
-  `release/4.0.0` полный. Регистрация языка выросла до **семи точек**: список языков вписан руками
-  не только в настройках, но и в мастере первичной настройки (`views/setup.ejs` — подпись и
-  отдельный выпадающий список).
-- Патч стал девятнадцатью правками: к регистрации добавились десятилетия по правилам языка
-  (`decadeText` рядом с `dateLocaleFor`), формат денег по языку интерфейса, запасная валюта,
-  когда Discogs не вернул код, заголовок длительности в треклисте через ключ локали и рубль
-  в `SUPPORTED_CURRENCIES`.
-- Правка «применять сохранённый язык» убрана: в 4.0.0 это делает сам апстрим в `app.ts`.
-- Появился `Dockerfile.source` — сборка из ветки `release/4.0.0`, потому что официального образа
-  4.0.0 ещё нет. `Dockerfile` остаётся для версий с опубликованным образом, база по умолчанию
-  `ghcr.io/kyonew/dvinyl:latest`.
-- Комментарии в коде и шаги в `README`/`AGENTS.md` переведены на английский, README и CHANGELOG
-  двуязычные.
-- `scripts/check-locale.py` знает ветку (`--ref`, по умолчанию `release/4.0.0`); `watch-upstream.py`
-  проверяет новые точки патча и по умолчанию смотрит туда же. CI собирает образ из
-  `Dockerfile.source`.
-
-**EN**
+## 2.0.0 — 4 November 2026
 
 - The package moves to DVinyl 4.0.0: the locale holds 2376 positions with no gaps against the
   `release/4.0.0` `en.json`. Registering a language grew to **seven places** — the language list is
@@ -43,39 +21,7 @@
   checks the new patch anchors and looks there by default. CI builds the image from
   `Dockerfile.source`.
 
-## 1.1.0 — 4 ноября 2026 / 4 November 2026
-
-**RU**
-
-- Перевод доведён до DVinyl 4.0.0: 899 недостающих строк против ветки `release/4.0.0`
-  переведены, локаль выросла с 1478 до 2374 ключей. Закрыты новые разделы: студия плагинов,
-  запросы, уведомления, вёрстка, главная, коллекционные модули (Pokémon, MTG, Yu-Gi-Oh!,
-  One Piece, Lorcana, Star Wars Unlimited, Digimon, Flesh and Blood).
-- Плюрализация русская: к английской паре `_one/_other` добавлены `_few/_many`, поэтому
-  в локали 21 форма сверх английского набора.
-- Термины правил карточных игр оставлены в оригинале (`Planeswalker`, `Trainer`, `Digi-Egg`,
-  `Tamer`, `Unit`, `Pitch`, `Near Mint (NM)`), подписи полей — по-русски.
-- Состояние конверта: шкала оценки остаётся английской (`Mint (M)`, `Very Good Plus (VG+)`),
-  последний пункт списка вернулся к `Generic Sleeve`.
-- Типы фона: «Однотонный» и «Изображение» не влезали в плитки, стало «Цвет» и «Картинка» —
-  «Цвет · Градиент · Узор · Картинка».
-- В выборе шрифта названия не переводятся: «С засечками» и «Моноширинный» вернулись к
-  `Serif` и `Mono`. Служебные пункты «Как у текста» и «Системный» оставлены переведёнными.
-- Тип носителя в форме: «Цифровое издание» раздувало кнопку, стало «Цифровое». Так же
-  сокращены «Физическое», «Коллекционное», «Лимитированное».
-- Заголовок колонки длительности в треклисте знал только французский и английский
-  (`=== 'Année' ? 'Durée' : 'Duration'`) и по-русски писал «Duration»; шаблон переведён на
-  ключ `tracklist.col_duration` (значение уточнено до «Длительность»).
-- Колонка таблицы «Данные» стала «Сведения»: в оригинале `Info`, а внутри автор или исполнитель.
-- Редактор мебели: «Раскладка» стала «Форма мебели» — по коду это форма отделения (кубик или
-  планка во всю ширину). Значения остались «Ячейки» и «Ряды», потому что «Полки» занято
-  списком отделений внутри мебели.
-- Плейсхолдер поиска в коллекции: было «Фильтр…» (калька с `Filter...`), стало «Поиск» —
-  строка служит ещё и подписью чипа активного фильтра.
-- Появился `scripts/build-review-page.py`: страница ревью с ключом, английским оригиналом,
-  переводом, поиском и отметками «пусто / как в EN / латиница / плейсхолдеры».
-
-**EN**
+## 1.1.0 — 4 November 2026
 
 - The translation now covers DVinyl 4.0.0: the 899 strings missing against `release/4.0.0`
   are translated, taking the locale from 1478 to 2374 keys. New sections included: the plugin
@@ -106,82 +52,31 @@
 - New `scripts/build-review-page.py`: a review page listing the key, the English source, the
   translation, with search and “empty / same as EN / latin / placeholders” marks.
 
-## 1.0.4 — 2 ноября 2026 / 2 November 2026
-
-**RU**
-
-- В настройках появился рубль: `RUB` добавлен в схему пользователя, в проверку маршрута
-  сохранения, в выпадающий список и в локали. Суммы печатаются как «1 234,50 ₽».
-
-**EN**
+## 1.0.4 — 2 November 2026
 
 - The ruble joined the settings: `RUB` is in the user schema, in the save-route validation, in
   the dropdown and in the locales. Amounts print as “1 234,50 ₽”.
 
-## 1.0.3 — 2 ноября 2026 / 2 November 2026
-
-**RU**
-
-- Фильтр по десятилетиям больше не пишет английское «s»: в русском «2020-е», в немецком «2020er»,
-  во французском и испанском слово перед годом. При нескольких выбранных десятилетиях вместо
-  числа показывается диапазон.
-
-**EN**
+## 1.0.3 — 2 November 2026
 
 - The decade filter no longer prints the English “s”: Russian reads “2020-е”, German “2020er”,
   and the romance languages put a word before the year. With several decades selected the control
   shows a range instead of a count.
 
-## 1.0.2 — 2 ноября 2026 / 2 November 2026
-
-**RU**
-
-- Цены в оценке коллекции и на карточке записи форматируются по языку интерфейса: было жёстко
-  `fr-FR` или `en-US`, поэтому по-русски сумма печаталась по-американски.
-- Если Discogs не вернул код валюты, на карточке вместо цены показывалась ошибка: теперь
-  подставляется валюта из настроек.
-
-**EN**
+## 1.0.2 — 2 November 2026
 
 - Prices in the collection estimate and on the item page follow the interface language; they used
   to be hardwired to `fr-FR` or `en-US`, so Russian printed them the American way.
 - When Discogs returned no currency code the item page showed an error instead of a price; it now
   falls back to the currency from the settings.
 
-## 1.0.1 — 2 ноября 2026 / 2 November 2026
-
-**RU**
-
-- Исправлена подпись модуля в навигации: `media.comic` теперь «Комиксы», а не «Комикс» —
-  в английском ключ во множественном числе, и рядом с «Книгами» единственное число читалось
-  как ошибка. Формат издания в фильтрах остался «Комикс».
-
-**EN**
+## 1.0.1 — 2 November 2026
 
 - Fixed the module label in the navigation: `media.comic` reads “Комиксы” instead of “Комикс”.
   The English key is plural, and the singular next to “Книги” read as a mistake. The format
   filter keeps the singular “Комикс”.
 
-## 1.0.0 — 2 ноября 2026 / 2 November 2026
-
-**RU**
-
-Первый выпуск. Русский язык интерфейса DVinyl: файл локали и правки, которые добавляют
-его в приложение.
-
-Установка:
-
-- образ — склонировать репозиторий и указать в compose `build: ./dvinyl-ru`;
-- из исходников — `install-source.sh` на клоне DVinyl;
-- через агента — шаги в `AGENTS.md`.
-
-После установки язык выбирается в настройках: Настройки → Язык → Русский. Проверка без
-входа — `/login?lng=ru`.
-
-Снято с `en.json` версии 3.3.0. Сверка с `master` 2 ноября 2026: расхождений нет, строки,
-в которые врезается патч, на месте.
-
-**EN**
+## 1.0.0 — 2 November 2026
 
 First release. The Russian interface of DVinyl: the locale file plus the edits that register it
 in the app.
