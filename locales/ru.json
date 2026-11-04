@@ -1485,7 +1485,7 @@
   "tracklist": {
     "col_position": "№",
     "col_title": "Название",
-    "col_duration": "Длит.",
+    "col_duration": "Длительность",
     "add_track": "Добавить трек",
     "rating": "Оценка",
     "tags": "Теги",
