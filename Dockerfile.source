@@ -1,0 +1,39 @@
+# Builds DVinyl from source with the Russian locale, for releases that ship no image yet — 4.0.0
+# lives on the `release/4.0.0` branch at the time of writing.
+#
+#   docker build -f Dockerfile.source -t dvinyl:ru-4.0.0 .
+#   docker build -f Dockerfile.source --build-arg DV_REF=main -t dvinyl:ru-main .
+#
+# Once 4.0.0 gets an official image, plain `Dockerfile` does the same job by layering the locale
+# on top of it.
+ARG DV_REPO=https://github.com/Kyonew/DVinyl.git
+ARG DV_REF=release/4.0.0
+
+FROM node:24-alpine AS source
+ARG DV_REPO
+ARG DV_REF
+RUN apk add --no-cache git
+WORKDIR /src
+RUN git clone --depth 1 --branch "$DV_REF" "$DV_REPO" . && rm -rf .git
+
+# Dependencies apart: better-sqlite3 compiles a native module when no prebuilt binary matches
+# the platform (Alpine's musl), which needs a toolchain the final image has no use for.
+FROM node:24-alpine AS deps
+WORKDIR /app
+RUN apk add --no-cache python3 make g++
+COPY --from=source /src/package*.json ./
+RUN npm install
+
+FROM node:24-alpine
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=source /src/ .
+
+# The locale and the nineteen registration edits, applied the same way as in the image overlay.
+COPY locales/ru.json /app/locales/ru.json
+COPY apply-ru-locale.js /tmp/apply-ru-locale.js
+RUN node /tmp/apply-ru-locale.js && rm /tmp/apply-ru-locale.js
+
+EXPOSE 3099
+
+CMD ["node", "--import", "tsx", "app.ts"]

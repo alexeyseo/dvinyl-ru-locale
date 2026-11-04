@@ -1,24 +1,23 @@
 #!/usr/bin/env python3
-"""Сторож русской локали DVinyl: следит, не устарел ли перевод относительно апстрима.
+"""Watchdog for the Russian locale: is the translation behind upstream?
 
-Что проверяет:
-  1. появились ли в апстримном en.json новые ключи (значит, в интерфейсе будут
-     непереведённые надписи, пока их не дописать);
-  2. исчезли ли ключи, которые у нас есть (апстрим переименовал или убрал строки);
-  3. живы ли восемь точек, в которые врезается apply-ru-locale.js — если апстрим
-     переписал строку, установка сломается на проверке «ожидалась ровно одна замена»;
-  4. не появился ли русский язык в апстриме сам (тогда пакет можно снимать с учёта).
+What it checks:
+  1. keys that appeared upstream in en.json (the interface shows untranslated strings until they
+     are written);
+  2. keys we have that upstream no longer has (renamed or removed there);
+  3. whether the anchors apply-ru-locale.js cuts into are still alive — a rewritten line upstream
+     makes the install fail on "expected exactly one match";
+  4. whether upstream grew its own Russian locale (then this package can retire).
 
-Молчит, когда всё в порядке: пустой stdout = сообщение не отправляется.
+Silent when everything is fine: empty stdout means no message is sent.
 
-Запуск:
-  watch-upstream.py                  # сравнить с master
-  watch-upstream.py --ref 3.4.0      # сравнить с конкретным тегом
-  watch-upstream.py --always         # печатать отчёт даже при норме
+Usage:
+  watch-upstream.py                  # compare with release/4.0.0
+  watch-upstream.py --ref 4.1.0      # compare with a specific tag or branch
+  watch-upstream.py --always         # print the report even when nothing is wrong
 """
 import argparse
 import json
-import re
 import sys
 import urllib.request
 from pathlib import Path
@@ -26,14 +25,22 @@ from pathlib import Path
 REPO = "Kyonew/DVinyl"
 RAW = f"https://raw.githubusercontent.com/{REPO}/"
 LOCAL_RU = Path(__file__).resolve().parent / "locales" / "ru.json"
+DEFAULT_REF = "release/4.0.0"
 PLURAL = ("_one", "_other", "_plural")
 
-# Те же строки поиска, что в apply-ru-locale.js. Меняются только вместе с ним.
+# The same search strings apply-ru-locale.js replaces. They change only together with it.
 ANCHORS = {
-    "app.ts": ["de: { translation: require('./locales/de.json') }"],
+    "app.ts": [
+        "de: { translation: require('./locales/de.json') }",
+        "normalizeLanguage, dateLocaleFor } from './config/constants.js';",
+        "// Dates read the same way wherever a view prints one",
+    ],
     "config/constants.ts": [
         "export const SUPPORTED_LANGUAGES = ['fr', 'en', 'de', 'es', 'it'] as const;",
+        "es: 'Español',\n  it: 'Italiano'\n};",
         "es: 'es-ES',\n  it: 'it-IT'\n};",
+        "export function dateLocaleFor(value: any): string {",
+        "export const SUPPORTED_CURRENCIES = ['EUR', 'USD', 'GBP'] as const;",
     ],
     "models/User.ts": ["enum: ['fr', 'en', 'de', 'es', 'it'],"],
     "views/settings.ejs": ['<option value="it"'],
@@ -41,9 +48,17 @@ ANCHORS = {
         "currentLng === 'it' ? 'Italiano' : 'Français' %>",
         '<a href="?lng=it"',
     ],
-    "middleware/settingsMiddleware.ts": [
-        "res.locals.currentLng = res.locals.user?.language || req.language || 'fr';",
+    "views/partials/albums-filters.ejs": [
+        "currentDecadeArr[0] + 's'",
+        "<%= y %>s</span>",
     ],
+    "views/partials/active-filter-pills.ejs": ["map(d => d + 's')"],
+    "views/collection.ejs": ['currentLng === "fr" ? "fr-FR" : "en-US"'],
+    "core/views/detail.ejs": [
+        'currentLng === "fr" ? "fr-FR" : "en-US"',
+        "const currency = data.price.currency;",
+    ],
+    "plugins/music/partials/tracklist-view.ejs": ["=== 'Année' ? 'Durée' : 'Duration'"],
 }
 
 
@@ -52,7 +67,7 @@ def fetch(path, ref):
     try:
         with urllib.request.urlopen(url, timeout=30) as resp:
             return resp.read().decode("utf-8", errors="replace")
-    except Exception:
+    except Exception:  # noqa: BLE001 - a missing file is a finding, not a crash
         return None
 
 
@@ -65,10 +80,10 @@ def flat(obj, prefix=""):
 
 
 def upstream_plural_bases(keys):
-    """Базы плюральных групп по английскому файлу: он использует только _one/_other."""
+    """Plural group bases from the English file, which carries only _one/_other."""
     bases = set()
     for key in keys:
-        for suffix in ("_one", "_other", "_plural"):
+        for suffix in PLURAL:
             if key.endswith(suffix):
                 bases.add(key[: -len(suffix)])
                 break
@@ -76,11 +91,11 @@ def upstream_plural_bases(keys):
 
 
 def normalize(keys, plural_bases):
-    """Свести плюральные формы к базе, не тронув одиночные ключи вроде images_too_many.
+    """Collapse plural forms onto their base without touching single keys.
 
-    Русские формы _few/_many отрезаются только там, где в английском действительно
-    есть плюральная группа; иначе «collection_info.images_too_many» превратился бы
-    в «images_too» и выглядел бы лишним ключом.
+    Russian `_few`/`_many` are stripped only where English really has a plural group,
+    otherwise `collection_info.images_too_many` would become `images_too` and read as an extra
+    key.
     """
     out = set()
     for key in keys:
@@ -95,7 +110,7 @@ def normalize(keys, plural_bases):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--ref", default="master")
+    ap.add_argument("--ref", default=DEFAULT_REF)
     ap.add_argument("--always", action="store_true")
     args = ap.parse_args()
 
@@ -103,8 +118,10 @@ def main():
 
     upstream_text = fetch("locales/en.json", args.ref)
     if upstream_text is None:
-        print(f"**Локаль DVinyl: не удалось прочитать апстрим** ({REPO}, {args.ref}). "
-              "Проверь доступ к raw.githubusercontent.com.")
+        print(
+            f"**DVinyl Russian locale: upstream is unreadable** ({REPO}, {args.ref}). "
+            "Check access to raw.githubusercontent.com."
+        )
         return 0
 
     upstream_keys = list(dict(flat(json.loads(upstream_text))).keys())
@@ -117,42 +134,48 @@ def main():
     gone_keys = sorted(set(local) - set(upstream))
     if new_keys:
         problems.append(
-            f"новых строк в апстриме: **{len(new_keys)}** — нужен доперевод, "
+            f"new strings upstream: **{len(new_keys)}** — needs translating, "
             + ", ".join(f"`{k}`" for k in new_keys[:8])
-            + (f" и ещё {len(new_keys) - 8}" if len(new_keys) > 8 else ""))
+            + (f" and {len(new_keys) - 8} more" if len(new_keys) > 8 else "")
+        )
     if gone_keys:
-        # Это ключи, которые мы привозим сами (подписи новых валют и подобное):
-        # их нет в апстриме до слияния патча, и терять из-за них сигнал нельзя.
-        notes.append(f"своих ключей вне апстрима: {len(gone_keys)} — "
-                     + ", ".join(f"`{k}`" for k in gone_keys[:8]))
+        # Keys this package brings along itself (labels for currencies the patch adds and the
+        # like): upstream has no such keys until the patch lands, and losing the signal over
+        # them would be wrong.
+        notes.append(
+            f"our own keys outside upstream: {len(gone_keys)} — "
+            + ", ".join(f"`{k}`" for k in gone_keys[:8])
+        )
 
     broken = []
     for path, anchors in ANCHORS.items():
         text = fetch(path, args.ref)
         if text is None:
-            broken.append(f"{path}: файл не читается")
+            broken.append(f"{path}: file is unreadable")
             continue
         for anchor in anchors:
             if anchor not in text:
-                broken.append(f"{path}: не найдена строка {anchor!r}")
+                broken.append(f"{path}: anchor not found {anchor!r}")
     if broken:
-        problems.append("патч локали не ляжет на эту версию:\n  - " + "\n  - ".join(broken))
+        problems.append("the locale patch will not apply to this version:\n  - " + "\n  - ".join(broken))
 
     if fetch("locales/ru.json", args.ref) is not None:
-        notes.append("в апстриме появился свой `locales/ru.json` — пакет можно снимать "
-                     "с сопровождения, локаль приезжает с обновлением")
+        notes.append(
+            "upstream has its own `locales/ru.json` now — this package can retire, the locale "
+            "arrives with the update"
+        )
 
     if not problems and not notes and not args.always:
         return 0
 
-    lines = [f"**Русская локаль DVinyl — проверка {args.ref}**", ""]
+    lines = [f"**DVinyl Russian locale — check {args.ref}**", ""]
     if problems:
         lines += [f"- {item}" for item in problems]
     else:
-        lines.append("- перевод совпадает с апстримом, точки патча на месте")
+        lines.append("- the translation matches upstream, every patch anchor is in place")
     if notes:
         lines += [f"- {item}" for item in notes]
-    lines += ["", f"Пакет: locales/ru.json ({len(local)} позиций). Источник: {REPO}@{args.ref}."]
+    lines += ["", f"Package: locales/ru.json ({len(local)} positions). Source: {REPO}@{args.ref}."]
     print("\n".join(lines))
     return 0
 

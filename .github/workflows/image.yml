@@ -14,15 +14,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Определить базовую версию DVinyl из Dockerfile
+      # DVinyl 4.0.0 has no official image yet, so the build clones the branch and patches it —
+      # that ref lives in Dockerfile.source. When a release image appears, switch `file:` back to
+      # Dockerfile and the locale is simply layered on top of it.
+      - name: Read the DVinyl ref out of Dockerfile.source
         id: upstream
         run: |
-          base=$(awk -F= '/^ARG UPSTREAM=/ {print $2; exit}' Dockerfile)
-          echo "value=${base#*:}" >> "$GITHUB_OUTPUT"
+          ref=$(awk -F= '/^ARG DV_REF=/ {print $2; exit}' Dockerfile.source)
+          echo "value=${ref}" >> "$GITHUB_OUTPUT"
 
       - uses: docker/setup-buildx-action@v3
 
-      - name: Версия без префикса v
+      - name: Version without the v prefix
         id: version
         run: echo "value=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
 
@@ -32,19 +35,20 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Собрать и опубликовать
+      - name: Build and push
         uses: docker/build-push-action@v6
         with:
           context: .
+          file: Dockerfile.source
           push: true
           build-args: |
-            UPSTREAM=ghcr.io/kyonew/dvinyl:${{ steps.upstream.outputs.value }}
+            DV_REF=${{ steps.upstream.outputs.value }}
           tags: |
             ghcr.io/${{ github.repository }}:${{ github.ref_name }}
             ghcr.io/${{ github.repository }}:${{ steps.version.outputs.value }}
             ghcr.io/${{ github.repository }}:latest
           labels: |
-            org.opencontainers.image.title=DVinyl с русской локалью
-            org.opencontainers.image.description=Русский язык интерфейса DVinyl
+            org.opencontainers.image.title=DVinyl with a Russian locale
+            org.opencontainers.image.description=Russian interface locale for DVinyl
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
             org.opencontainers.image.version=${{ github.ref_name }}

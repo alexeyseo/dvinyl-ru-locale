@@ -1,51 +1,55 @@
 #!/usr/bin/env bash
-# Установка русской локали в DVinyl, запущенный из исходников (не из официального образа).
+# Installs the Russian locale into a DVinyl checkout — for people running from source rather
+# than from an official image.
 #
-#   ./install-source.sh /путь/к/клону/DVinyl
+#   ./install-source.sh /path/to/DVinyl
 #
-# Скрипт только правит файлы в указанном каталоге: локаль копируется, восемь точек
-# регистрации накладываются идемпотентно. Ничего не удаляет и не коммитит — дальше
-# запускаете приложение как обычно (`npm start`) или собираете свой образ.
+# It only edits files under that directory: the locale is copied and the nineteen registration
+# edits are applied, idempotently. Nothing is deleted and nothing is committed — start the app as
+# usual (`npm start`) or build your own image afterwards.
 set -euo pipefail
 
 TARGET="${1:-}"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 if [ -z "$TARGET" ]; then
-  echo "укажите путь к клону DVinyl: ./install-source.sh /path/to/DVinyl" >&2
+  echo "give the path to a DVinyl checkout: ./install-source.sh /path/to/DVinyl" >&2
   exit 2
 fi
 if [ ! -f "$TARGET/app.ts" ] || [ ! -d "$TARGET/locales" ]; then
-  echo "это не похоже на исходники DVinyl: нет app.ts или locales/ в $TARGET" >&2
+  echo "this does not look like DVinyl sources: no app.ts or locales/ in $TARGET" >&2
   exit 2
 fi
 
-echo "→ копирую локаль"
+echo "→ copying the locale"
 cp "$HERE/locales/ru.json" "$TARGET/locales/ru.json"
 
-echo "→ регистрирую язык"
+echo "→ registering the language"
 DV_ROOT="$TARGET" node "$HERE/apply-ru-locale.js"
 
-echo "→ проверяю, что шаблоны собираются"
+echo "→ compiling the touched templates"
 if command -v node >/dev/null 2>&1; then
   ( cd "$TARGET" && node --input-type=module -e '
 import ejs from "ejs";
 import fs from "fs";
-for (const f of ["views/settings.ejs", "views/setup.ejs"]) {
+for (const f of ["views/settings.ejs", "views/setup.ejs", "views/collection.ejs",
+                 "core/views/detail.ejs", "views/partials/albums-filters.ejs",
+                 "views/partials/active-filter-pills.ejs",
+                 "plugins/music/partials/tracklist-view.ejs"]) {
   ejs.compile(fs.readFileSync(f, "utf8"), { filename: f });
   console.log("  ok:", f);
 }
 const ru = JSON.parse(fs.readFileSync("locales/ru.json", "utf8"));
-console.log("  локаль на месте, верхних групп:", Object.keys(ru).length);
-' 2>/dev/null || echo "  (проверка пропущена: в этом окружении нет ejs — запустите npm install)")
+console.log("  locale in place, top-level groups:", Object.keys(ru).length);
+' 2>/dev/null || echo "  (skipped: no ejs in this environment — run npm install first)")
 else
-  echo "  (node не найден, шаблоны не проверены)"
+  echo "  (node not found, templates not checked)"
 fi
 
 echo
-echo "Готово. Дальше:"
-echo "  cd $TARGET && npm start          # запустить как обычно"
-echo "  — или —"
-echo "  docker compose up -d --build     # если собираете свой образ"
+echo "Done. Next:"
+echo "  cd $TARGET && npm start          # start the app as usual"
+echo "  — or —"
+echo "  docker compose up -d --build     # if you build your own image"
 echo
-echo "Язык выбирается в интерфейсе: Настройки → Язык → Русский."
+echo "Pick the language in the interface: Settings → Language → Русский."

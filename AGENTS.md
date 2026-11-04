@@ -1,51 +1,61 @@
-# Инструкция для ИИ-агента: поставить русский язык в DVinyl
+# Instructions for an AI agent: install the Russian interface into DVinyl
 #
-# Задача: в self-hosted DVinyl добавить русский интерфейс так, чтобы обновление версии
-# сервиса его не убило. Источник — этот каталог (ru.json + apply-ru-locale.js).
+# Task: add a Russian interface to a self-hosted DVinyl so that a version update does not wipe
+# it. The source is this directory (`locales/ru.json` plus `apply-ru-locale.js`).
 
-## 1. Определи, как у человека запущен DVinyl
+## 1. Work out how DVinyl runs for this person
 
-- Есть каталог с `docker-compose.yml` и сервисом на образе `ghcr.io/kyonew/dvinyl` → **вариант «образ»**.
-- Есть клон исходников (`app.ts`, `locales/`) → **вариант «исходники»**.
-- Непонятно → спроси один раз, не угадывай.
+- A directory with `docker-compose.yml` and a service on `ghcr.io/kyonew/dvinyl` → **the image
+  route**. Note that 4.0.0 has no official image yet; if they run 4.0.0, they build from source
+  and the source route below applies.
+- A source checkout (`app.ts`, `locales/`) → **the source route**.
+- Unclear → ask once, do not guess.
 
-## 2. Вариант «образ»
+## 2. Image route
 
 ```bash
-cp -r <этот каталог> <каталог-compose>/dvinyl-ru
+cp -r <this directory> <compose directory>/dvinyl-ru
 ```
 
-В `docker-compose.yml` сервиса DVinyl:
+In the DVinyl service of `docker-compose.yml`:
 
 ```yaml
     build: ./dvinyl-ru
     image: dvinyl:ru
-    # image: ghcr.io/kyonew/dvinyl:3.3.0   ← эту строку убрать или закомментировать
+    # image: ghcr.io/kyonew/dvinyl:3.3.0   ← remove or comment this line out
 ```
 
-Если сервис объявлен с `image:` и без `build:`, добавь `build` рядом; остальные поля не трогай.
+If the service is declared with `image:` and no `build:`, add `build` next to it and touch nothing
+else.
 
 ```bash
 docker compose up -d --build
 ```
 
-## 3. Вариант «исходники»
+For the branch with no published image, build from source instead:
 
 ```bash
-./install-source.sh /путь/к/клону/DVinyl
+docker build -f Dockerfile.source -t dvinyl:ru .
 ```
 
-Скрипт копирует локаль и накладывает правки. Коммит не делает — оставь решение человеку.
-
-## 4. Проверь результат (обязательно, не по логам сборки)
+## 3. Source route
 
 ```bash
-# язык принимается приложением: до патча здесь был бы fr
-curl -s -i "http://127.0.0.1:<порт>/login?lng=ru" | grep -i 'content-language'
-# ожидается: Content-Language: ru
+./install-source.sh /path/to/DVinyl
+```
 
-# плюрализация и сами переводы
-docker exec <контейнер> node --input-type=module -e "
+The script copies the locale and applies the edits; it does not commit — leave that decision to the
+person.
+
+## 4. Check the result (for real, not from build logs)
+
+```bash
+# the app accepts the language: before the patch this answered fr
+curl -s -i "http://127.0.0.1:<port>/login?lng=ru" | grep -i 'content-language'
+# expect: Content-Language: ru
+
+# the strings and the plural forms
+docker exec <container> node --input-type=module -e "
 import i18next from 'i18next';
 import ru from './locales/ru.json' with { type: 'json' };
 await i18next.init({ lng: 'ru', fallbackLng: 'ru', resources: { ru: { translation: ru } } });
@@ -53,31 +63,42 @@ console.log(i18next.t('lists.tracks_count', { count: 3 }));  // 3 трека
 "
 ```
 
-Ожидаемо: `Content-Language: ru` и «3 трека». Если вместо этого `fr` — правки не применились,
-смотри шаг 5.
+Expect `Content-Language: ru` and «3 трека». If you get `fr`, the edits did not apply — see step 5.
 
-## 5. Если сборка упала на «ожидалась ровно одна замена»
+A second, template-level check that catches a missed registration point:
 
-Апстрим переписал строку, в которую врезается патч. Поступай так:
+```bash
+curl -s "http://127.0.0.1:<port>/setup?lng=ru" | grep -c 'Русский'
+```
 
-1. Найди в `apply-ru-locale.js` упавшую правку — в сообщении указан файл и число совпадений.
-2. Открой этот файл в образе/исходниках: `docker run --rm -it <образ> sh -lc 'grep -n "<фрагмент>" /app/<файл>'`.
-3. Обнови строку поиска в скрипте так, чтобы она встречалась ровно один раз.
-4. Пересобери и повтори проверку из шага 4.
+The setup wizard keeps its own language list, so a zero here means that point was skipped.
 
-Не копируй целые файлы апстрима в проект: `app.ts` большой и меняется от релиза к релизу.
+## 5. If the build stops on “expected exactly one match”
 
-## 6. Что сказать человеку
+Upstream has rewritten a line the patch cuts into. Work through it:
 
-- Язык выбирается в интерфейсе: Настройки → Язык → Русский. Если осталось по-английски —
-  вход по старой cookie, переключение в настройках применяется к каждому запросу.
-- Новые строки, которые появились в апстриме после этой версии, будут по-английски, пока их
-  не переведут: fallback — `en.json`.
-- Обновление DVinyl: сначала `docker compose build` (или `docker build`), потом `up -d`.
-  Если апстрим сдвинул строки патча — сборка остановится с понятной ошибкой, это не поломка.
+1. Find the failing edit in `apply-ru-locale.js` — the message names the file and the match count.
+2. Look at the file in the image or checkout:
+   `docker run --rm -it <image> sh -lc 'grep -n "<fragment>" /app/<file>'`.
+3. Update the search string so that it matches exactly once.
+4. Rebuild and repeat the check from step 4.
 
-## Ограничения, о которых не надо забывать
+Do not copy whole upstream files into the project: `app.ts` is large and changes with every
+release.
 
-- `DEFAULT_LANGUAGE` в апстриме — `'fr'`: гость без русского языка браузера увидит французский.
-  Это поведение апстрима, не баг локали.
-- Язык метаданных (TMDB, Discogs и прочие источники) от языка интерфейса не зависит.
+## 6. What to tell the person
+
+- Pick the language in the interface: Settings → Language → Русский. If it stays English, the
+  browser still carries the old cookie; the settings switch applies to every subsequent request.
+- Strings that appeared upstream after this version stay English until translated: the fallback is
+  `en.json`.
+- Updating DVinyl: `docker compose build` (or `docker build`) first, then `up -d`. If upstream moved
+  a patch anchor the build stops with a readable error, and that is not a breakage.
+
+## Limits worth remembering
+
+- Upstream's `DEFAULT_LANGUAGE` is `'fr'`: a visitor with no Russian in their browser sees French.
+  That is upstream behaviour, not a locale bug.
+- Source metadata languages (TMDB, Discogs and the rest) do not follow the interface language.
+- Trading-card rules terms stay in the original (`Planeswalker`, `Digi-Egg`, `Near Mint (NM)`);
+  field labels are Russian. Do not “finish” those translations.

@@ -2,6 +2,47 @@
 
 Каждая запись дана дважды: по-русски и по-английски. / Every entry is given twice: in Russian and in English.
 
+## 2.0.0 — 4 ноября 2026 / 4 November 2026
+
+**RU**
+
+- Пакет переведён на DVinyl 4.0.0: локаль — 2376 позиций, паритет с `en.json` ветки
+  `release/4.0.0` полный. Регистрация языка выросла до **семи точек**: список языков вписан руками
+  не только в настройках, но и в мастере первичной настройки (`views/setup.ejs` — подпись и
+  отдельный выпадающий список).
+- Патч стал девятнадцатью правками: к регистрации добавились десятилетия по правилам языка
+  (`decadeText` рядом с `dateLocaleFor`), формат денег по языку интерфейса, запасная валюта,
+  когда Discogs не вернул код, заголовок длительности в треклисте через ключ локали и рубль
+  в `SUPPORTED_CURRENCIES`.
+- Правка «применять сохранённый язык» убрана: в 4.0.0 это делает сам апстрим в `app.ts`.
+- Появился `Dockerfile.source` — сборка из ветки `release/4.0.0`, потому что официального образа
+  4.0.0 ещё нет. `Dockerfile` остаётся для версий с опубликованным образом, база по умолчанию
+  `ghcr.io/kyonew/dvinyl:latest`.
+- Комментарии в коде и шаги в `README`/`AGENTS.md` переведены на английский, README и CHANGELOG
+  двуязычные.
+- `scripts/check-locale.py` знает ветку (`--ref`, по умолчанию `release/4.0.0`); `watch-upstream.py`
+  проверяет новые точки патча и по умолчанию смотрит туда же. CI собирает образ из
+  `Dockerfile.source`.
+
+**EN**
+
+- The package moves to DVinyl 4.0.0: the locale holds 2376 positions with no gaps against the
+  `release/4.0.0` `en.json`. Registering a language grew to **seven places** — the language list is
+  hand-written not only in the settings but also in the setup wizard (`views/setup.ejs`, both the
+  label and its own dropdown).
+- The patch is now nineteen edits: besides registration it carries decades written the way the
+  language writes them (`decadeText` next to `dateLocaleFor`), money formatted by the interface
+  language, a fallback currency for when Discogs returns none, the tracklist duration header
+  through a locale key, and the ruble in `SUPPORTED_CURRENCIES`.
+- The “apply the saved language” edit is gone: 4.0.0 does that in `app.ts` itself.
+- New `Dockerfile.source` builds from the `release/4.0.0` branch, since 4.0.0 has no official image
+  yet. `Dockerfile` stays for releases that do, defaulting to `ghcr.io/kyonew/dvinyl:latest`.
+- Code comments and the steps in `README`/`AGENTS.md` are English now; README and CHANGELOG are
+  bilingual.
+- `scripts/check-locale.py` takes a branch (`--ref`, `release/4.0.0` by default); `watch-upstream.py`
+  checks the new patch anchors and looks there by default. CI builds the image from
+  `Dockerfile.source`.
+
 ## 1.1.0 — 4 ноября 2026 / 4 November 2026
 
 **RU**

@@ -1,6 +1,14 @@
+# Example: DVinyl with the Russian locale.
+#
+# DVinyl 4.0.0 keeps everything in one SQLite file under ./data, so there is no database service
+# any more. The only two secrets it insists on live in .env:
+#
+#   PASSJWT=$(openssl rand -hex 32)
+#   SESSION_SECRET=$(openssl rand -hex 32)
+#
+# Coming from 3.x? Keep the old MongoDB running, add MONGODB_URL to .env and start once — the first
+# boot copies everything into SQLite and only reads Mongo. After that the db service below can go.
 # Пример: DVinyl с русской локалью.
-# Скопируйте этот файл рядом со своей установкой и замените только app-сервис,
-# либо перенесите в свой compose две строки: build и image.
 services:
   app:
     build: ./ru-locale-package
@@ -11,19 +19,16 @@ services:
     ports:
       - "127.0.0.1:3099:3099"
     volumes:
+      # The SQLite file and the local images. DVinyl refuses to start when this folder is not
+      # mounted from the host, since everything in it would be lost on the next recreate.
+      - ./data:/app/data
       - ./data/uploads:/app/public/uploads
-    depends_on:
-      db:
-        condition: service_healthy
 
+  # Only for the one-time upgrade from DVinyl 3.x; remove it once the import is done.
   db:
-    image: mongo:7
+    image: mongo:9.0
     container_name: dvinyl-db
     restart: unless-stopped
+    profiles: ["upgrade"]
     volumes:
-      - ./data/db:/data/db
-    healthcheck:
-      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 5s
-      retries: 12
+      - ./mongo_data:/data/db
