@@ -5,6 +5,14 @@ The interface locale for [DVinyl](https://github.com/Kyonew/DVinyl), brought up 
 
 Russian below the English, section by section. / Русский идёт под английским, раздел за разделом.
 
+**Status, 4 November 2026 / Состояние на 4 ноября 2026.** Upstream does not ship Russian yet: neither
+`main` nor `release/4.0.0` has `locales/ru.json`, and both the locale and its registration are open
+pull requests (#220 and #221). Until they merge, this package is the only way to get the Russian
+interface — including 4.0.0, which has no official image at all.
+Апстрим русского ещё не поставляет: ни в `main`, ни в `release/4.0.0` нет `locales/ru.json`, локаль
+и её регистрация лежат открытыми PR (#220 и #221). Пока они не слиты, этот пакет — единственный
+способ получить русский интерфейс, включая 4.0.0, у которой официального образа нет вовсе.
+
 ## Install / Установка
 
 **From source, the way 4.0.0 ships today / Из исходников, как сейчас выходит 4.0.0**
@@ -91,6 +99,44 @@ rewrites a line, the build stops with a message naming the edit instead of shipp
 without Russian.
 `apply-ru-locale.js` делает каждую замену с проверкой «ровно одно вхождение». Если автор переписал
 строку, сборка остановится с сообщением, в котором названа правка, — вместо интерфейса без языка.
+
+## When Russian lands upstream / Когда русский появится в апстриме
+
+**The code patch stops being ours.** All nineteen registration edits become part of DVinyl itself, and
+this repository is left with one file: `locales/ru.json`. From the release that ships them, installing
+Russian is just updating the image.
+**Патч кода перестаёт быть нашим.** Все девятнадцать правок регистрации становятся частью DVinyl, и в
+этом репозитории остаётся один файл — `locales/ru.json`. С того релиза установка русского сводится к
+обновлению образа.
+
+What this package is for then / Зачем пакет нужен после этого:
+
+- **Older versions that will never receive it.** 3.3.0 and below stay English forever; this package is
+  the only way to give them Russian.
+  **Старые версии, которые его уже не получат.** 3.3.0 и ниже останутся английскими навсегда — только
+  этот пакет даёт им русский.
+- **Staging a translation ahead of a release.** A wording fix can be built and tried here before an
+  upstream release exists.
+  **Обкатка перевода до релиза.** Правку формулировки можно собрать и потрогать здесь, пока релиза
+  апстрима ещё нет.
+- **Nothing else.** No forks of app files, no second source of truth: wording changes go upstream by
+  pull request, and this repository only rebuilds the locale for the older track.
+  **И больше ничего.** Никаких копий файлов приложения и второго источника правды: правки формулировок
+  уходят в апстрим пул-реквестом, а этот репозиторий только пересобирает локаль для старой ветки.
+
+How to tell whether the current release already has it / Как проверить, есть ли уже русский в релизе:
+
+```bash
+curl -sf -o /dev/null -w '%{http_code}\n' \
+  https://raw.githubusercontent.com/Kyonew/DVinyl/<tag-or-branch>/locales/ru.json
+# 404 — русского нет, нужен этот пакет
+# 200 — русский внутри, пакет не нужен
+```
+
+`watch-upstream.py` reports the same thing on its own: the line «upstream has its own `locales/ru.json`
+now» means the package can retire.
+То же самое сообщает `watch-upstream.py`: строка «upstream has its own `locales/ru.json` now» означает,
+что пакет можно снимать с сопровождения.
 
 ## Updating DVinyl / Обновления DVinyl
 
