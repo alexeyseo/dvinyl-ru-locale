@@ -58,7 +58,9 @@ jobs:
           TAG: ${{ github.event.inputs.tag || github.ref_name }}
         run: |
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release edit "$TAG" --title "$TAG" --notes-file notes.md
+            # --draft=false: удаление и пересоздание тега оставляет релиз черновиком, и edit без
+            # этого флага правит ноты, но публикации не возвращает.
+            gh release edit "$TAG" --title "$TAG" --notes-file notes.md --draft=false
           else
             gh release create "$TAG" --title "$TAG" --notes-file notes.md --verify-tag
           fi
