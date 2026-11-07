@@ -35,8 +35,7 @@ jobs:
                   return None
               return "\n".join(match.group(0).splitlines()[1:]).strip()
 
-          # Английский и русский живут в разных файлах: он главный для апстрима и сообщества,
-          # русский идёт ниже под спойлером. Одного файла мало — ноты получались только английскими.
+          # Английская секция идёт первой, русская — под спойлером.
           english = section("CHANGELOG.md")
           russian = section("CHANGELOG.ru.md")
           if not english:
@@ -58,8 +57,7 @@ jobs:
           TAG: ${{ github.event.inputs.tag || github.ref_name }}
         run: |
           if gh release view "$TAG" >/dev/null 2>&1; then
-            # --draft=false: удаление и пересоздание тега оставляет релиз черновиком, и edit без
-            # этого флага правит ноты, но публикации не возвращает.
+            # --draft=false: пересозданный тег оставляет релиз черновиком, edit его публикует.
             gh release edit "$TAG" --title "$TAG" --notes-file notes.md --draft=false
           else
             gh release create "$TAG" --title "$TAG" --notes-file notes.md --verify-tag

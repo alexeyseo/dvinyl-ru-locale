@@ -1,30 +1,17 @@
-// Adds Russian to DVinyl: the locale file plus every place a language has to be registered.
+// Registers Russian in DVinyl: the locale file plus every place a language has to be listed.
 //
-// Why a script and not copied files: app.ts, config/constants.ts and the two templates that
-// carry a language list are large and drift on every upstream release. A wholesale copy would
-// break each time; targeted replacements fail loudly instead, naming the edit and the file, so
-// the interface never ships half-translated. Every edit is idempotent: a second run reports
-// "already applied" and changes nothing.
+// The edits are targeted string replacements with an "exactly one match" check, so a changed
+// upstream line stops the build and names the edit instead of shipping a half-translated
+// interface. Running it twice changes nothing.
 //
-// Since Russian is merged upstream (PRs #220 and #221, branch release/4.0.0), every edit here
-// reports "already applied" on a current build. The script stays for older trees — a tag or a
-// branch cut before the merge — and as a guard: if a future upstream release drops one of the
-// registration points, the edit puts it back instead of shipping a half-registered language.
-//
-// Behaviour the upstream author chose differently, and which this script therefore no longer
-// touches: decades go through the translation key `collection.decade_value` (not a code map),
-// money and the tracklist header are already locale-aware, and the ruble was taken out of
-// SUPPORTED_CURRENCIES on purpose — Discogs refuses curr_abbr=RUB and the card-game sources
-// return USD or EUR only, so every estimate would have been shown as rubles with a wrong amount.
-//
-// Used from three places, all with the same edits:
-//   - Dockerfile / Dockerfile.source — patching an image at build time;
-//   - install-source.sh — patching a DVinyl clone;
-//   - pull requests to upstream — the same edits, made in the fork.
+// Used by Dockerfile / Dockerfile.source at build time, by install-source.sh on a clone, and for
+// the pull requests to upstream.
 //
 // Set DV_ROOT to point at anything other than /app.
 //
-// Written against DVinyl 4.0.0 (branch `release/4.0.0`).
+// Written against DVinyl 4.0.0 (branch `release/4.0.0`), which already lists Russian: every edit
+// reports "already applied" there and the script only fills in a tree cut before the merge.
+// Decades, money, the tracklist header and the ruble are not touched: upstream owns them.
 'use strict';
 
 const fs = require('fs');

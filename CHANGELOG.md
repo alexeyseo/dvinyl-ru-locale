@@ -4,38 +4,21 @@
 
 ## 2.1.0 — 7 November 2026
 
-- **Russian is merged upstream.** `Kyonew/DVinyl` took both pull requests into `release/4.0.0`:
-  #220 for the locale and the language registration (6 files), #221 for decades, money, the
-  tracklist header and the ruble (12 files). `locales/ru.json` now ships with the app, and the
-  README lists Russian among the interface languages.
-- **The ruble did not survive the merge.** Discogs refuses `curr_abbr=RUB` and the card-game
-  sources return USD or EUR only, so every estimate would have been shown as rubles with a wrong
-  amount; the author took it out until prices are converted between currencies. The patch no longer
-  adds it.
-- **Decades are a translation key upstream, not a code map.** `t('collection.decade_value', { year })`
-  replaced the per-language pattern table, so a new language needs only a string. The patch no
-  longer carries `decadeText`; `collection.decade_value` is `{{year}}-е` in this locale.
-- **The locale caught up with the branch, 2376 → 2435 positions** against 2426 English leaves:
-  47 strings from the commits of 7 November (vinyl size, speed, release type and disc count;
-  purchase price and paid-versus-estimate; wishes of other members; saved views; places no
-  furniture holds; the kept-source controls) and 12 from the repeating-rows field
-  (`common.add_row`, `create_plugin.type_rows`, runout rows for vinyl). Parity is complete, no
-  placeholders broken, no empty values.
-- **The patch shrank from nineteen edits to the seven registration points.** Decades, money, the
-  tracklist header and the ruble are gone — upstream made them itself or turned them down. On a
-  current `release/4.0.0` every edit reports “already applied”, so the script is a guard, not a
-  translation carrier: it keeps the package usable on trees cut before the merge and puts a
-  registration point back if a later release drops one.
-- **`watch-upstream.py` watches the merge instead of the patch:** new English strings, and whether
-  Russian is still registered in all seven places. Wordings upstream phrases differently are
-  listed only with `--report-wording`, since the package keeps the read-through version.
-- **`scripts/check-locale.py` no longer mistakes a lone key for a plural group.** A group is a
-  `_one`/`_other` pair; `collection.shelf_move_one` is the single-item action (“Move elsewhere”)
-  and used to demand forms that will never exist.
-- Fifteen strings are worded differently in this package than upstream, deliberately — for
-  example `confirm_vinyl.field_release_type` is “Тип издания”, not “Тип релиза”, and
-  `wishes.found_title` reads “Желаемое в ваших коллекциях”. Sending them as a follow-up pull
-  request is the owner's call.
+- Russian is merged upstream: pull requests #220 (locale and language registration) and #221
+  (decades, money, tracklist header, ruble) landed in `release/4.0.0`, and `locales/ru.json` now
+  ships with the app.
+- The ruble is not part of the merge: Discogs refuses `curr_abbr=RUB`, and the card-game sources
+  return USD or EUR only.
+- Decades are written through `collection.decade_value`; the Russian value is `{{year}}-е`.
+- The locale holds 2435 entries against 2426 English keys. Added: vinyl size, speed, release type,
+  disc count and runout rows; purchase price and paid-versus-estimate; wishes of other members;
+  saved views; places no furniture holds; repeating-row fields.
+- `apply-ru-locale.js` covers the seven language registration points. Decades, money, the
+  tracklist header and the ruble are removed from it.
+- `check-locale.py` reads a plural group as a `_one`/`_other` pair, so single keys ending in `_one`
+  are no longer reported as groups.
+- `watch-upstream.py` reports new English keys and missing registration points; `--report-wording`
+  adds strings worded differently upstream.
 
 ## 2.0.0 — 4 November 2026
 

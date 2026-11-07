@@ -29,9 +29,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=source /src/ .
 
-# The locale and the language registration. Since Russian is merged upstream (7 November 2026)
-# the script reports "already applied" on a current branch; on an older tree it fills the seven
-# registration points in.
+# The locale and the language registration (seven points on a tree cut before the merge).
 COPY locales/ru.json /app/locales/ru.json
 COPY apply-ru-locale.js /tmp/apply-ru-locale.js
 RUN node /tmp/apply-ru-locale.js && rm /tmp/apply-ru-locale.js

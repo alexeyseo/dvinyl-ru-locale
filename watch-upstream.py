@@ -1,21 +1,8 @@
 #!/usr/bin/env python3
-"""Watchdog for the Russian locale: is the translation behind upstream?
+"""Reports how the Russian locale compares with upstream.
 
-Since the translation is merged upstream (PRs #220 and #221 into `release/4.0.0`), this package is
-no longer the only place Russian lives: `locales/ru.json` ships with the app. The watchdog now
-watches the merge, not the patch.
-
-What it checks:
-  1. keys that appeared upstream in en.json (the interface shows untranslated strings until they
-     are written);
-  2. whether Russian is still registered upstream — the locale file plus the seven places a
-     language has to be listed. A missing point means a release would ship a language that is
-     either invisible or reads dates the American way;
-  3. strings upstream changed after the merge — the source of truth is upstream now, so a
-     disagreement means this copy is stale;
-  4. keys we have that upstream no longer has (renamed or removed there).
-
-Silent when everything is fine: empty stdout means no message is sent.
+Checks: new English keys, keys upstream dropped, the seven places a language has to be registered,
+and (with --report-wording) strings upstream words differently. Silent when nothing is wrong.
 
 Usage:
   watch-upstream.py                  # compare with release/4.0.0
