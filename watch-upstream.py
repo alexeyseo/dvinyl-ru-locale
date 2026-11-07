@@ -95,7 +95,7 @@ def main():
     ap.add_argument(
         "--report-wording",
         action="store_true",
-        help="also list strings upstream words differently (this copy is the read-through version)",
+        help="also list strings upstream words differently",
     )
     args = ap.parse_args()
 
