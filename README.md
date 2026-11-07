@@ -4,10 +4,14 @@ The interface locale for [DVinyl](https://github.com/Kyonew/DVinyl), brought up 
 
 **Русская версия:** [README.ru.md](README.ru.md)
 
-**Status, 4 November 2026.** Upstream does not ship Russian yet: neither `main` nor
-`release/4.0.0` has `locales/ru.json`, and both the locale and its registration are open pull
-requests (#220 and #221). Until they merge, this package is the only way to get the Russian
-interface — including 4.0.0, which has no official image at all.
+**Status, 7 November 2026.** Russian is merged upstream. `Kyonew/DVinyl` took both pull requests
+into `release/4.0.0` (#220 for the locale and its registration, #221 for decades, money, the
+tracklist header and the ruble), so `locales/ru.json` now ships with the app and the README lists
+Russian among the interface languages. The ruble was taken out of the merge on purpose: Discogs
+refuses `curr_abbr=RUB` and the card-game sources return USD or EUR only.
+
+This package stays useful for older versions and as a guard: it carries the read-through locale
+and re-registers the language if a later release drops one of the seven points.
 
 ## Install
 
@@ -20,8 +24,9 @@ cd DVinyl && npm install
 npm start
 ```
 
-The script copies the locale and applies the nineteen registration edits; a second run prints
-“already applied” and changes nothing.
+The script copies the locale and makes sure the language is registered in seven places; on a
+build that already has Russian from upstream, every edit prints “already applied” and nothing
+changes.
 
 **An image built from the branch**
 
@@ -64,38 +69,46 @@ Settings → Language → Русский.
 
 ## What the patch touches
 
-Seven registration points, then the language fixes the package carries.
+Seven registration points, nothing else.
 
 | File | What it does |
 |---|---|
-| `locales/ru.json` | the locale itself — a new file |
-| `config/constants.ts` | `SUPPORTED_LANGUAGES`, `LANGUAGE_NAMES`, `DATE_LOCALES`, `decadeText`, `SUPPORTED_CURRENCIES` |
-| `app.ts` | i18next resources; `app.locals.decadeText` next to `dateLocaleFor` |
+| `locales/ru.json` | the locale itself — a new file on trees cut before the merge |
+| `config/constants.ts` | `SUPPORTED_LANGUAGES`, `LANGUAGE_NAMES`, `DATE_LOCALES` |
+| `app.ts` | i18next resources |
 | `models/User.ts` | the `language` enum, without which the database refuses the preference |
 | `views/settings.ejs` | the settings dropdown, which keeps its own copy of the list |
 | `views/setup.ejs` | the setup wizard's label and dropdown, also hand-written |
-| `views/collection.ejs`, `core/views/detail.ejs` | money formatted by the interface language, and a currency fallback |
-| `views/partials/albums-filters.ejs`, `views/partials/active-filter-pills.ejs` | decades written the way the language writes them |
-| `plugins/music/partials/tracklist-view.ejs` | the duration header through a locale key |
 
 `apply-ru-locale.js` performs each replacement with an “exactly one match” check. When the author
 rewrites a line, the build stops with a message naming the edit instead of shipping an interface
-without Russian.
+without Russian. On a build that already has Russian from upstream every edit reports “already
+applied”, so the script cannot double-apply or overwrite a newer upstream decision.
+
+## What the package deliberately does not patch
+
+Upstream handles these itself, or chose differently, and the patch left them alone:
+
+- **Decades** go through the translation key `collection.decade_value` (`{{year}}-е` here), not
+  through a per-language table in code.
+- **Money, dates and the tracklist header** are already locale-aware in 4.0.0.
+- **The ruble** is not in `SUPPORTED_CURRENCIES`: Discogs refuses `curr_abbr=RUB` and the
+  card-game sources return USD or EUR only, so an estimate would print a wrong amount in rubles.
 
 ## When Russian lands upstream
 
-**The code patch stops being ours.** All nineteen registration edits become part of DVinyl itself,
-and this repository is left with one file: `locales/ru.json`. From the release that ships them,
-installing Russian is just updating the image.
+**It has landed.** Both pull requests are merged into `release/4.0.0`, and this repository keeps a
+read-through copy of the locale plus the registration guard. Installing Russian on a new release is
+just updating the image.
 
-What this package is for then:
+What this package is for now:
 
 - **Older versions that will never receive it.** 3.3.0 and below stay English forever; this
   package is the only way to give them Russian.
 - **Staging a translation ahead of a release.** A wording fix can be built and tried here before
   an upstream release exists.
-- **Nothing else.** No forks of app files, no second source of truth: wording changes go upstream
-  by pull request, and this repository only rebuilds the locale for the older track.
+- **Keeping the registration honest.** If a future release drops one of the seven points, the
+  watcher says so and the script puts it back.
 
 How to tell whether a release already has it:
 

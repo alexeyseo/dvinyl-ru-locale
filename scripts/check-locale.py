@@ -61,10 +61,18 @@ def main():
 
     extra_keys = []
     if english:
-        plural_bases = {k[: -len(s)] for k in english for s in PLURAL_EN if k.endswith(s)}
+        # A plural group is a `_one`/`_other` pair. A lone key can end in a plural suffix without
+        # being one: `collection.shelf_move_one` is the single-item action ("Move elsewhere"), and
+        # treating it as a group asks for forms that will never exist.
+        plural_bases = {
+            k[: -len(s)]
+            for k in english
+            for s in PLURAL_EN
+            if k.endswith(s) and f"{k[: -len(s)]}_one" in english and f"{k[: -len(s)]}_other" in english
+        }
         for key in english:
             suffix = next((s for s in PLURAL_EN if key.endswith(s)), None)
-            if suffix:
+            if suffix and key[: -len(suffix)] in plural_bases:
                 base = key[: -len(suffix)]
                 if not all(f"{base}{form}" in russian for form in PLURAL_RU):
                     problems.append(f"no Russian forms for the plural group {base}")
