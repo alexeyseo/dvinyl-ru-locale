@@ -26,14 +26,30 @@ jobs:
           import os, re, pathlib
           tag = os.environ["TAG"]
           version = tag.lstrip("v")
-          text = pathlib.Path("CHANGELOG.md").read_text(encoding="utf-8")
-          # Секция версии — от «## <version>» до следующего «## » или конца файла
-          match = re.search(rf"^## {re.escape(version)}.*?(?=^## |\Z)", text, re.S | re.M)
-          if not match:
+
+          def section(path):
+              text = pathlib.Path(path).read_text(encoding="utf-8")
+              # Секция версии — от «## <version>» до следующего «## » или конца файла
+              match = re.search(rf"^## {re.escape(version)}.*?(?=^## |\Z)", text, re.S | re.M)
+              if not match:
+                  return None
+              return "\n".join(match.group(0).splitlines()[1:]).strip()
+
+          # Английский и русский живут в разных файлах: он главный для апстрима и сообщества,
+          # русский идёт ниже под спойлером. Одного файла мало — ноты получались только английскими.
+          english = section("CHANGELOG.md")
+          russian = section("CHANGELOG.ru.md")
+          if not english:
               raise SystemExit(f"в CHANGELOG.md нет секции для {version}")
-          body = match.group(0)
-          body = "\n".join(body.splitlines()[1:]).strip()
-          print(body or f"Выпуск {tag}.")
+          print(english)
+          if russian:
+              print()
+              print("<details>")
+              print("<summary>Русская версия</summary>")
+              print()
+              print(russian)
+              print()
+              print("</details>")
           PY
 
       - name: Создать или обновить релиз
