@@ -96,7 +96,7 @@
     "unsupported_currency": "Неподдерживаемая валюта.",
     "username_taken": "Такое имя уже занято.",
     "current_password_incorrect": "Текущий пароль неверный.",
-    "sso_no_local_password": "Аккаунт входит через SSO, локального пароля для смены нет.",
+    "sso_no_local_password": "Аккаунт входит через SSO. Локального пароля нет — менять нечего.",
     "invalid_theme": "Неверная тема.",
     "lang_change_error": "Не удалось сменить язык.",
     "setup_error": "Ошибка настройки.",
