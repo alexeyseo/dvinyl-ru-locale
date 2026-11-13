@@ -2,6 +2,19 @@
 
 Русская версия: [CHANGELOG.ru.md](CHANGELOG.ru.md)
 
+## 2.2.0 — 13 November 2026
+
+- The locale caught up with `release/4.0.0`: 2578 entries, no gaps against `en.json`.
+- 136 strings translated: the plugin workshop (`create_plugin`), linked image download
+  (`image_download`), invite links, Discogs import warnings and backup formats (`admin`), the
+  invitation page (`join`), bulk field edit (`collection`), nested items (`inside`), vinyl and game
+  fields (`confirm_vinyl`, `confirm_game`), the setup token (`setup`).
+- Six counters are assembled in the browser from the `_one` and `_other` forms. They now have
+  `_other`: `collection.unique_titles`, `lists.picker_selection`, `lists.picker_added`,
+  `lists.entries_count`, `lists.tracks_count`, `studio.changes`. Without it a count above one fell
+  back to the default language, French.
+- Fixed a typo in `confirm_vinyl.field_runouts`.
+
 ## 2.1.0 — 7 November 2026
 
 - Russian is merged upstream: pull requests #220 (locale and language registration) and #221
