@@ -2,6 +2,20 @@
 
 Русская версия: [CHANGELOG.ru.md](CHANGELOG.ru.md)
 
+## 2.3.0 — 16 November 2026
+
+- The locale is refreshed against `release/4.0.0` as it stands now: 2600 entries, parity with `en.json`.
+- Twenty-two strings that 4.0.0 introduced are translated: the plugin object page
+  (`create_plugin.cz_detail_*`, `cz_own_fields_title`), shelf moves (`collection.shelf_move_few`,
+  `collection.shelf_move_many`), plural counters (`admin.invites.days_other`,
+  `collection.share_active_count_other`, `notifications.unread_count_other`,
+  `requests.card_history_other`), the storage fallback notice (`admin.instance.storage_fallback_*`),
+  row expansion (`detail.rows_show_all`, `detail.rows_show_less`, `detail.more_details`),
+  `detail.refresh_no_source`, the dump error (`admin.backup.error_invalid_dump`) and `ai.err_no_answer`.
+- Seventeen existing strings are reworded to match the 4.0.0 interface: shelf confirmations now carry
+  the item count, `admin.sort_articles_desc` mentions sorting by artist name as well, and
+  `admin.collections.default_badge` reads "Основная коллекция".
+
 ## 2.2.0 — 13 November 2026
 
 - The locale caught up with `release/4.0.0`: 2578 entries, no gaps against `en.json`.

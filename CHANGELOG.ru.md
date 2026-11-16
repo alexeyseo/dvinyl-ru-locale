@@ -2,6 +2,21 @@
 
 English version: [CHANGELOG.md](CHANGELOG.md)
 
+## 2.3.0 — 16 ноября 2026
+
+- Локаль выровнена по `release/4.0.0` в его текущем виде: 2600 позиций, паритет с `en.json`.
+- Переведены двадцать две строки, которые появились в 4.0.0: страница объекта в студии плагинов
+  (`create_plugin.cz_detail_*`, `cz_own_fields_title`), перемещение между полками
+  (`collection.shelf_move_few`, `collection.shelf_move_many`), счётчики (`admin.invites.days_other`,
+  `collection.share_active_count_other`, `notifications.unread_count_other`,
+  `requests.card_history_other`), предупреждение о резервном хранилище
+  (`admin.instance.storage_fallback_*`), раскрытие строк (`detail.rows_show_all`,
+  `detail.rows_show_less`, `detail.more_details`), `detail.refresh_no_source`, ошибка дампа
+  (`admin.backup.error_invalid_dump`) и `ai.err_no_answer`.
+- Семнадцать существующих строк переписаны под интерфейс 4.0.0: подтверждения по полкам теперь
+  называют количество записей, `admin.sort_articles_desc` упоминает сортировку и по имени автора,
+  `admin.collections.default_badge` называется «Основная коллекция».
+
 ## 2.2.0 — 13 ноября 2026
 
 - Локаль догнала `release/4.0.0`: 2578 позиций, паритет с `en.json` полный.
